@@ -78,7 +78,7 @@ library(lares)
 
 ```{r}
 # survey data taken from Qualtrics on December 28th 2022
-test_svy <- read_csv("https://github.com/nwstetson/ChimpPersonality/blob/main/Data/28Dec2022_Raw.csv", show_col_types = FALSE)
+test_svy <- read_csv("https://raw.githubusercontent.com/nwstetson/ChimpPersonality/main/Data/28Dec2022_Raw.csv", show_col_types = FALSE)
 ```
 
 ------------------------------------------------------------------------
@@ -86,7 +86,10 @@ test_svy <- read_csv("https://github.com/nwstetson/ChimpPersonality/blob/main/Da
 ### Clean data
 
 ```{r}
-
+# delete rows 1 and 2 (Qualtrics added them)
+# delete columns: 'Status', 'IPAddress', 'Progress', 'Finished', 'RecipientLastName', 'RecipientFirstName', 'RecipientEmail', 'ExternalReference', 'DistributionChannel', 'UserLanguage'
+# change '1 (least)' to '1'
+# change '7 (most)' to '7'
 ```
 
 #### Make data tidy
