@@ -1,0 +1,72 @@
+---
+title: "Chimp Personality (30 Dec)"
+author: "Noah Stetson"
+date: "`r Sys.Date()`"
+format: html
+editor: visual
+---
+
+### Data analysis outline for chimp personality (with beta version of survey)
+
+### Goals:
+
+1.  Load library and data
+
+    -   This is connected to GitHub
+
+2.  Clean data
+
+3.  Survey data
+
+    -   Inter-item correlation: Do certain test items correlate with each other? Do the test items correlate as expected?
+
+    -   Inter-total correlation: Do certain personality scores correlate with each other?
+
+    -   Inter-rater correlation: See how the 2 raters (AS and RR) correlate with how they scores the chimps
+
+**Later:**
+
+1.  Factors impacting how people rate personality
+
+    1.  Time knowing the chimp
+
+    2.  Focal subject vs non-focal
+
+    3.  US researcher vs Ugandan research staff
+
+    4.  Research project
+
+2.  Compare "dominance" score on survey to other measures of dominance
+
+    1.  Aggression
+
+    2.  Pant grunts
+
+    3.  Elo ratings
+
+    4.  David's score
+
+------------------------------------------------------------------------
+
+### Load library and data
+
+#### Library
+
+```{r}
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+library(psych)
+library(readr)
+library(corrplot)
+library(irr)
+library(lares)
+```
+
+#### Data
+
+```{r}
+Dec28 <- read_csv("https://github.com/nwstetson/ChimpPersonality/blob/main/Data/28Dec2022_Raw.csv", show_col_types = FALSE)  # survey data taken from Qualtrics on December 28th 2022
+```
+
+------------------------------------------------------------------------
