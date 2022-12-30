@@ -6,9 +6,9 @@ format: html
 editor: visual
 ---
 
-### Data analysis outline for chimp personality (with beta version of survey)
+### Data analysis outline for chimp personality (from beta version of survey)
 
-### Goals:
+### 🐵 Goals:
 
 1.  Load library and data
 
@@ -18,13 +18,23 @@ editor: visual
 
 3.  Survey data
 
-    -   Inter-item correlation: Do certain test items correlate with each other? Do the test items correlate as expected?
+    -   Survey results overview
 
-    -   Inter-total correlation: Do certain personality scores correlate with each other?
+    -   Internal reliability:
 
-    -   Inter-rater correlation: See how the 2 raters (AS and RR) correlate with how they scores the chimps
+        -   Inter-item correlation:
 
-**Later:**
+            -   Do certain test items correlate with each other?
+
+            -   Do the test items correlate as expected for the big 5 (+ dominance)?
+
+        -   Inter-total correlation: Do certain personality scores correlate with each other?
+
+    -   Inter-rater reliability:
+
+        -   See how the 2 raters (AS and RR) correlate with how they scores the chimps
+
+**Eventually:**
 
 1.  Factors impacting how people rate personality
 
@@ -53,6 +63,7 @@ editor: visual
 #### Library
 
 ```{r}
+# check which packages are actually going to be used
 library(tidyverse)
 library(dplyr)
 library(ggplot2)
@@ -66,7 +77,261 @@ library(lares)
 #### Data
 
 ```{r}
-Dec28 <- read_csv("https://github.com/nwstetson/ChimpPersonality/blob/main/Data/28Dec2022_Raw.csv", show_col_types = FALSE)  # survey data taken from Qualtrics on December 28th 2022
+# survey data taken from Qualtrics on December 28th 2022
+test_svy <- read_csv("https://github.com/nwstetson/ChimpPersonality/blob/main/Data/28Dec2022_Raw.csv", show_col_types = FALSE)
 ```
 
 ------------------------------------------------------------------------
+
+### Clean data
+
+```{r}
+
+```
+
+#### Make data tidy
+
+This makes the data easier to use to make graphs and do calculations
+
+```{r}
+tidy_svy <-test_svy %>% 
+  pivot_longer(cols = 'Fearful':'Independent', names_to = "Trait", values_to = 'TraitScore')
+# divide by number of raters to get chimps' average scores (I think this will automatically just add them)
+tidy_svy <-tidy_svy %>% 
+  pivot_longer(cols = 'SC1':'SC6', names_to = "Chimp6", values_to = 'Chimp6Score')
+# divide by number of raters to get chimps' average scores (I think this will automatically just add them)
+```
+
+------------------------------------------------------------------------
+
+### Survey results overview
+
+#### Items
+
+```{r}
+beta_items <- TestSvy %>% select('Fearful':'Independent')
+describe(beta_items)
+```
+
+#### Big 5 (+ dominance) scores
+
+```{r}
+chimp6 <- TestSvy %>% select('SC1':'SC6')
+describe(chimp6)
+```
+
+#### Graph summarizing distribution of personality scores
+
+```{r}
+tidy_svy$Trait <- factor(tidy_svy$Trait, levels=rev(unique(tidy_svy$Trait)))
+
+ggplot(tidy_svy, aes(x= Trait, y= TraitScore)) +
+  geom_boxplot(color = "darkgoldenrod", fill='lightgoldenrod1') +
+  theme_classic() +
+  xlab("Personality Trait") +
+  ylab("Score") +
+  coord_flip() +
+  ggtitle("Variation in Personality Across 20 Chimpanzees")
+```
+
+#### Graph summarizing distribution of "chimp 6" scores
+
+```{r}
+tidy_svy$Chimp6 <- factor(tidy_svy$Chimp6, levels=rev(unique(tidy_svy$Chimp6)))
+
+ggplot(tidy_svy, aes(x= Chimp6, y= Chimp6Score)) +
+  geom_boxplot(color = "darkgoldenrod", fill='lightgoldenrod1') +
+  theme_classic() +
+  xlab("'Chimp 6' Trait") +
+  ylab("Score") +
+  coord_flip() +
+  ggtitle("Variation in 'Chimp 6' Scores Across 20 Chimpanzees")
+```
+
+------------------------------------------------------------------------
+
+### Inter-item/inter-total\* correlations for general personality scores
+
+(correlations between each chimp's average personality scores) (not using chimp 6 scores)
+
+This allows us to see if certain personality traits tend to correlate with each other
+
+\* I think these are both inter-item and inter-total correlations because these personality traits are calculated by a single test item each
+
+#### Make matrix table
+
+```{r}
+svy_matrix_table <- cor(test_svy[,c('Fearful':'Independent')]) #These are the test items
+corrplot(item_matrix_table, addCoef.col = 1,
+         number.cex = 0.3, tl.cex = 0.5)
+```
+
+#### Calculate correlations and make into a table
+
+```{r}
+svy_items <- test_svy %>% select('Fearful':'Independent')
+inter_item <- svy_itemss %>% correlate() %>% select(-term)
+inter <- colMeans(inter_item, na.rm = TRUE)
+
+mean(inter)
+# _
+
+inter
+# this shows the item correlations as a table
+```
+
+------------------------------------------------------------------------
+
+### By Chimp 6 category
+
+The survey has some personality traits sorted to fit into larger categories (openness, conscientiousness, extroversion, agreeableness, neuroticism, and dominance). We want to see how to smaller traits that go into the same larger category correlate with one another.
+
+If the smaller traits are all supposed to be assessing a similar thing (e.g. dominance), then an individual chimp should probably score similarly on all of them
+
+#### Openness
+
+```{r}
+Openness <- Trait %>% select('Curious', 'Innovative', 'Inquisitive', 'Inventive')
+# these are the smaller personality traits that the Gombe paper put into the openness category
+
+inter_openness <- Openness %>% correlate() %>% select(-term)
+
+inter_openness <- colMeans(inter_openness, na.rm = TRUE)
+
+mean(inter_openness)
+# _
+
+psych::alpha(Openness) # alpha value
+# _
+```
+
+#### Conscientiousness
+
+**Don't forget to reverse-code those that need it!!!**
+
+**The ones that need it are marked with an (R) afterwards**
+
+```{r}
+conscientiousness <- Trait %>% select('Reckless'(R), 'Impulsive'(R), 'Predictable')
+# these are the smaller personality traits that the Gombe paper put into the openness category
+
+inter_conscientiousness <- conscientiousness %>% correlate() %>% select(-term)
+
+inter_conscientiousness <- colMeans(inter_conscientiousness, na.rm = TRUE)
+
+mean(inter_conscientiousness)
+# _
+
+psych::alpha(conscientiousness) # alpha value
+# _
+```
+
+#### Extroversion
+
+**Don't forget to reverse-code those that need it!!!**
+
+**The ones that need it are marked with an (R) afterwards**
+
+```{r}
+extroversion <- Trait %>% select('Sociable', 'Solitary'(R), 'Active', 'Independent'(R))
+# these are the smaller personality traits that the Gombe paper put into the openness category
+
+inter_extroversion <- extroversion %>% correlate() %>% select(-term)
+
+inter_extroversion <- colMeans(inter_extroversion, na.rm = TRUE)
+
+mean(inter_extroversion)
+# _
+
+psych::alpha(extroversion) # alpha value
+# _
+```
+
+#### Agreeableness
+
+```{r}
+agreeableness <- Trait %>% select('Sympathetic', 'Helpful', 'Sensitive')
+# these are the smaller personality traits that the Gombe paper put into the openness category
+
+inter_agreeableness <- agreeableness %>% correlate() %>% select(-term)
+
+inter_agreeableness <- colMeans(inter_agreeableness, na.rm = TRUE)
+
+mean(inter_agreeableness)
+# _
+
+psych::alpha(agreeableness) # alpha value
+# _
+```
+
+#### Neuroticism
+
+**The ones that need it are marked with an (R) afterwards**
+
+```{r}
+neuroticism <- Trait %>% select('Stable'(R), 'Excitable')
+# these are the smaller personality traits that the Gombe paper put into the openness category
+
+inter_neuroticism <- neuroticism %>% correlate() %>% select(-term)
+
+inter_neuroticism <- colMeans(inter_neuroticism, na.rm = TRUE)
+
+mean(inter_neuroticism)
+# _
+
+psych::alpha(neuroticism) # alpha value
+# _
+```
+
+#### Dominance
+
+**The ones that need it are marked with an (R) afterwards**
+
+```{r}
+dominance <- Trait %>% select('Dominant', 'Dependent/Follower'(R), 'Decisive')
+# these are the smaller personality traits that the Gombe paper put into the openness category
+
+inter_dominance <- dominance %>% correlate() %>% select(-term)
+
+inter_dominance <- colMeans(inter_dominance, na.rm = TRUE)
+
+mean(inter_dominance)
+# _
+
+psych::alpha(dominance) # alpha value
+# _
+```
+
+------------------------------------------------------------------------
+
+### Inter-total correlations for Chimp 6 scores
+
+(correlations between each chimp's Chimp 6 scores)
+
+#### Make matrix table
+
+```{r}
+svy_matrix_table <- cor(test_svy[,c('SC1':'SC6')]) #These are the test items
+corrplot(item_matrix_table, addCoef.col = 1,
+         number.cex = 0.3, tl.cex = 0.5)
+```
+
+#### Calculate correlations and make into a table
+
+```{r}
+chimp6 <- test_svy %>% select('SC1':'SC6')
+chimp6_inter_item <- svy_itemss %>% correlate() %>% select(-term)
+chimp6_inter <- colMeans(inter_item, na.rm = TRUE)
+
+mean(chimp6_inter)
+# _
+
+chimp6_inter
+# this shows the item correlations as a table
+```
+
+------------------------------------------------------------------------
+
+#### Inter-rater reliability
+
+Do the different raters score the same chimps in similar ways?
