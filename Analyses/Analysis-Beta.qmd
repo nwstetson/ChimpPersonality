@@ -86,7 +86,7 @@ test_svy <- read_csv("https://raw.githubusercontent.com/nwstetson/ChimpPersonali
 
 ### Clean data
 
-#### Stuff I did in Excel (should have done in R but got carried away oopsie):
+#### Stuff I did in Excel (should have done in R but got carried away oopsie, will do in R for the final version):
 
 -   Removed rows 2 and 3
 
@@ -95,6 +95,8 @@ test_svy <- read_csv("https://raw.githubusercontent.com/nwstetson/ChimpPersonali
 -   Rename "1 (least)" to "1"
 
 -   Rename "7 (most)" to "7"
+
+-   ⭐️ In the final version I can also change everyone's names to their initials
 
 ### Make data tidy
 
@@ -343,6 +345,45 @@ chimp6_inter
 
 ------------------------------------------------------------------------
 
-#### Inter-rater reliability
+### Inter-rater reliability
 
 Do the different raters score the same chimps in similar ways?
+
+#### See how rater AS and RR compare in how they overall scored the chimps
+
+```{r}
+tidy_svy$Trait <- factor(tidy_svy$Trait, levels=rev(unique(tidy_svy$TraitScore))
+#this reorders the tick marks so it's not out of order
+# why didn't it do it
+
+ggplot(tidy_svy, aes(x= Trait, y= TraitScore, fill = RaterName)) +
+  geom_boxplot() +
+  theme_classic() +
+  scale_fill_manual(values = c("powderblue", "goldenrod1")) +
+  xlab("Personality Trait") +
+  ylab("Score") +
+  ggtitle("Variation in Personality Scores Across 20 Chimpanzees")
+```
+
+#### Same thing but for Chimp6 scores (since it's less info so easier to read)
+
+```{r}
+tidy_svy$Chimp6 <- factor(tidy_svy$Chimp6, levels=rev(unique(tidy_svy$Chimp6Score))
+#it still won't reorder it idk what I need to do differently to get it to work :P
+
+ggplot(tidy_svy, aes(x= Chimp6, y= Chimp6Score, fill = RaterName)) +
+  geom_boxplot() +
+  theme_classic() +
+  scale_fill_manual(values = c("powderblue", "goldenrod1")) +
+  xlab("Personality Trait") +
+  ylab("Score") +
+  ggtitle("Variation in Personality Scores Across 20 Chimpanzees")
+```
+
+### Okay now for the math part:
+
+Calculating inter-rater reliability
+
+```{r}
+
+```
