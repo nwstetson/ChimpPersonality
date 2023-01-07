@@ -205,7 +205,7 @@ CodedChimp6 <- test_svy [(reverse_cols = c('Reckless', 'Impulsive', 'Solitary', 
 CodedChimp6[ , reverse_cols] = 8 - CodedChimp6[ , reverse_cols]
 
 # rename columns so I know these are reverse-coded
-CodedChimp6 <- rename(CodedChimp6, Reckless_R = Reckless, Implusive_R = Impulsive, Solitary_R = Solitary, Independent_R = Independent, Stable_R = Stable, 'Dependent/Follower_R' = 'Dependent/Follower')
+CodedChimp6 <- rename(CodedChimp6, Reckless_R = Reckless, Impulsive_R = Impulsive, Solitary_R = Solitary, Independent_R = Independent, Stable_R = Stable, 'Dependent/Follower_R' = 'Dependent/Follower')
 
 # now combine the new reverse-coded version with the other items
 Chimp6Complete <- cbind(test_svy, CodedChimp6)
@@ -239,20 +239,16 @@ inter_conscientiousness <- conscientiousness %>% correlate() %>% select(-term)
 inter_conscientiousness <- colMeans(inter_conscientiousness, na.rm = TRUE)
 
 mean(inter_conscientiousness)
-# _
+#  0.3411637
 
 psych::alpha(conscientiousness) # alpha value
-# _
+# 0.62
 ```
 
 #### Extroversion
 
-**Don't forget to reverse-code those that need it!!!**
-
-**The ones that need it are marked with an (R) afterwards**
-
 ```{r}
-extroversion <- Trait %>% select(Sociable, Solitary_R, Active, Independent_R)
+extroversion <- Chimp6Complete %>% select(Sociable, Solitary_R, Active, Independent_R)
 # these are the smaller personality traits that the Gombe paper put into the openness category
 
 inter_extroversion <- extroversion %>% correlate() %>% select(-term)
@@ -269,7 +265,7 @@ psych::alpha(extroversion) # alpha value
 #### Agreeableness
 
 ```{r}
-agreeableness <- Trait %>% select(Sympathetic, Helpful, Sensitive)
+agreeableness <- Chimp6Complete %>% select(Sympathetic, Helpful, Sensitive)
 # these are the smaller personality traits that the Gombe paper put into the openness category
 
 inter_agreeableness <- agreeableness %>% correlate() %>% select(-term)
@@ -277,16 +273,16 @@ inter_agreeableness <- agreeableness %>% correlate() %>% select(-term)
 inter_agreeableness <- colMeans(inter_agreeableness, na.rm = TRUE)
 
 mean(inter_agreeableness)
-# _
+# 0.6663696
 
 psych::alpha(agreeableness) # alpha value
-# _
+# 0.85
 ```
 
 #### Neuroticism
 
 ```{r}
-neuroticism <- Trait %>% select(Stable_R, Excitable)
+neuroticism <- Chimp6Complete %>% select(Stable_R, Excitable)
 # these are the smaller personality traits that the Gombe paper put into the openness category
 
 inter_neuroticism <- neuroticism %>% correlate() %>% select(-term)
@@ -294,18 +290,16 @@ inter_neuroticism <- neuroticism %>% correlate() %>% select(-term)
 inter_neuroticism <- colMeans(inter_neuroticism, na.rm = TRUE)
 
 mean(inter_neuroticism)
-# _
+# 0.5718016
 
 psych::alpha(neuroticism) # alpha value
-# _
+# 0.7
 ```
 
 #### Dominance
 
-**The ones that need it are marked with an (R) afterwards**
-
 ```{r}
-dominance <- Trait %>% select(Dominant, 'Dependent/Follower_R', Decisive)
+dominance <- Chimp6Complete %>% select(Dominant, 'Dependent/Follower_R', Decisive)
 # these are the smaller personality traits that the Gombe paper put into the openness category
 
 inter_dominance <- dominance %>% correlate() %>% select(-term)
@@ -313,10 +307,10 @@ inter_dominance <- dominance %>% correlate() %>% select(-term)
 inter_dominance <- colMeans(inter_dominance, na.rm = TRUE)
 
 mean(inter_dominance)
-# _
+# 0.3891945
 
 psych::alpha(dominance) # alpha value
-# _
+# 0.65
 ```
 
 ------------------------------------------------------------------------
@@ -328,8 +322,8 @@ psych::alpha(dominance) # alpha value
 #### Make matrix table
 
 ```{r}
-svy_matrix_table <- cor(test_svy[,c('SC1':'SC6')]) #These are the test items
-corrplot(item_matrix_table, addCoef.col = 1,
+svy_matrix_table <- cor(test_svy[,c(61:66)]) #These are the chimp 6 scores
+corrplot(svy_matrix_table, addCoef.col = 1,
          number.cex = 0.3, tl.cex = 0.5)
 ```
 
@@ -337,11 +331,11 @@ corrplot(item_matrix_table, addCoef.col = 1,
 
 ```{r}
 chimp6 <- test_svy %>% select('SC1':'SC6')
-chimp6_inter_item <- svy_itemss %>% correlate() %>% select(-term)
+chimp6_inter_item <- svy_items %>% correlate() %>% select(-term)
 chimp6_inter <- colMeans(inter_item, na.rm = TRUE)
 
 mean(chimp6_inter)
-# _
+#0.02826144
 
 chimp6_inter
 # this shows the item correlations as a table
