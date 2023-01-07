@@ -72,6 +72,7 @@ library(readr)
 library(corrplot)
 library(irr)
 library(lares)
+library(corrr)
 ```
 
 #### Data
@@ -180,8 +181,10 @@ inter_item <- svy_items %>% correlate() %>% select(-term)
 inter <- colMeans(inter_item, na.rm = TRUE)
 
 mean(inter)
-# _
+# 0.02826144
+```
 
+```{r}
 inter
 # this shows the item correlations as a table
 ```
@@ -194,10 +197,24 @@ The survey has some personality traits sorted to fit into larger categories (ope
 
 If the smaller traits are all supposed to be assessing a similar thing (e.g. dominance), then an individual chimp should probably score similarly on all of them
 
+#### Reverse-coding the items that need it
+
+```{r}
+CodedChimp6 <- test_svy [(reverse_cols = c('Reckless', 'Impulsive', 'Solitary', 'Independent', 'Stable', 'Dependent/Follower'))]
+
+CodedChimp6[ , reverse_cols] = 8 - CodedChimp6[ , reverse_cols]
+
+# rename columns so I know these are reverse-coded
+CodedChimp6 <- rename(CodedChimp6, Reckless_R = Reckless, Implusive_R = Impulsive, Solitary_R = Solitary, Independent_R = Independent, Stable_R = Stable, 'Dependent/Follower_R' = 'Dependent/Follower')
+
+# now combine the new reverse-coded version with the other items
+Chimp6Complete <- cbind(test_svy, CodedChimp6)
+```
+
 #### Openness
 
 ```{r}
-Openness <- Trait %>% select('Curious', 'Innovative', 'Inquisitive', 'Inventive')
+Openness <- Chimp6Complete %>% select(Curious, Innovative, Inquisitive, Inventive)
 # these are the smaller personality traits that the Gombe paper put into the openness category
 
 inter_openness <- Openness %>% correlate() %>% select(-term)
@@ -205,20 +222,16 @@ inter_openness <- Openness %>% correlate() %>% select(-term)
 inter_openness <- colMeans(inter_openness, na.rm = TRUE)
 
 mean(inter_openness)
-# _
+# 0.5727674
 
 psych::alpha(Openness) # alpha value
-# _
+# 0.84
 ```
 
 #### Conscientiousness
 
-**Don't forget to reverse-code those that need it!!!**
-
-**The ones that need it are marked with an (R) afterwards**
-
 ```{r}
-conscientiousness <- Trait %>% select('Reckless'(R), 'Impulsive'(R), 'Predictable')
+conscientiousness <- Chimp6Complete %>% select(Reckless_R, Impulsive_R, Predictable)
 # these are the smaller personality traits that the Gombe paper put into the openness category
 
 inter_conscientiousness <- conscientiousness %>% correlate() %>% select(-term)
@@ -239,7 +252,7 @@ psych::alpha(conscientiousness) # alpha value
 **The ones that need it are marked with an (R) afterwards**
 
 ```{r}
-extroversion <- Trait %>% select('Sociable', 'Solitary'(R), 'Active', 'Independent'(R))
+extroversion <- Trait %>% select(Sociable, Solitary_R, Active, Independent_R)
 # these are the smaller personality traits that the Gombe paper put into the openness category
 
 inter_extroversion <- extroversion %>% correlate() %>% select(-term)
@@ -256,7 +269,7 @@ psych::alpha(extroversion) # alpha value
 #### Agreeableness
 
 ```{r}
-agreeableness <- Trait %>% select('Sympathetic', 'Helpful', 'Sensitive')
+agreeableness <- Trait %>% select(Sympathetic, Helpful, Sensitive)
 # these are the smaller personality traits that the Gombe paper put into the openness category
 
 inter_agreeableness <- agreeableness %>% correlate() %>% select(-term)
@@ -272,10 +285,8 @@ psych::alpha(agreeableness) # alpha value
 
 #### Neuroticism
 
-**The ones that need it are marked with an (R) afterwards**
-
 ```{r}
-neuroticism <- Trait %>% select('Stable'(R), 'Excitable')
+neuroticism <- Trait %>% select(Stable_R, Excitable)
 # these are the smaller personality traits that the Gombe paper put into the openness category
 
 inter_neuroticism <- neuroticism %>% correlate() %>% select(-term)
@@ -294,7 +305,7 @@ psych::alpha(neuroticism) # alpha value
 **The ones that need it are marked with an (R) afterwards**
 
 ```{r}
-dominance <- Trait %>% select('Dominant', 'Dependent/Follower'(R), 'Decisive')
+dominance <- Trait %>% select(Dominant, 'Dependent/Follower_R', Decisive)
 # these are the smaller personality traits that the Gombe paper put into the openness category
 
 inter_dominance <- dominance %>% correlate() %>% select(-term)
