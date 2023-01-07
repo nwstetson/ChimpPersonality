@@ -78,7 +78,7 @@ library(lares)
 
 ```{r}
 # survey data taken from Qualtrics on December 28th 2022
-test_svy <- read_csv("https://raw.githubusercontent.com/nwstetson/ChimpPersonality/main/Data/7Jan2022_Raw.csv", show_col_types = FALSE)
+test_svy <- read_csv("https://raw.githubusercontent.com/nwstetson/ChimpPersonality/main/Data/7Jan2022_Cleaning.csv", show_col_types = FALSE)
 ```
 
 ------------------------------------------------------------------------
@@ -115,14 +115,14 @@ tidy_svy <-tidy_svy %>%
 #### Items
 
 ```{r}
-beta_items <- TestSvy %>% select('Fearful':'Independent')
+beta_items <- test_svy %>% select('Fearful':'Independent')
 describe(beta_items)
 ```
 
-#### Big 5 (+ dominance) scores
+#### Big 5 (+ dominance) scores (I'm calling it the Chimp 6 hehe)
 
 ```{r}
-chimp6 <- TestSvy %>% select('SC1':'SC6')
+beta_chimp6 <- test_svy %>% select('SC1':'SC6')
 describe(beta_chimp6)
 ```
 
@@ -167,16 +167,16 @@ This allows us to see if certain personality traits tend to correlate with each 
 #### Make matrix table
 
 ```{r}
-svy_matrix_table <- cor(test_svy[,c('Fearful':'Independent')]) #These are the test items
-corrplot(item_matrix_table, addCoef.col = 1,
+svy_matrix_table <- cor(test_svy[,c(7:60)]) #These are the columns for the test items
+corrplot(svy_matrix_table, addCoef.col = 1,
          number.cex = 0.3, tl.cex = 0.5)
 ```
 
 #### Calculate correlations and make into a table
 
 ```{r}
-svy_items <- test_svy %>% select('Fearful':'Independent')
-inter_item <- svy_itemss %>% correlate() %>% select(-term)
+svy_items <- test_svy %>% select(7:60)
+inter_item <- svy_items %>% correlate() %>% select(-term)
 inter <- colMeans(inter_item, na.rm = TRUE)
 
 mean(inter)
