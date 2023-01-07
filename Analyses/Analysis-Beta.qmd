@@ -78,24 +78,24 @@ library(lares)
 
 ```{r}
 # survey data taken from Qualtrics on December 28th 2022
-test_svy <- read_csv("https://raw.githubusercontent.com/nwstetson/ChimpPersonality/main/Data/28Dec2022_Raw.csv", show_col_types = FALSE)
+test_svy <- read_csv("https://raw.githubusercontent.com/nwstetson/ChimpPersonality/main/Data/7Jan2022_Raw.csv", show_col_types = FALSE)
 ```
 
 ------------------------------------------------------------------------
 
 ### Clean data
 
-```{r}
-# delete rows 1 and 2 (Qualtrics added them)
+#### Stuff I did in Excel (should have done in R but got carried away oopsie):
 
-# delete columns: 'Status', 'IPAddress', 'Progress', 'Finished', 'RecipientLastName', 'RecipientFirstName', 'RecipientEmail', 'ExternalReference', 'DistributionChannel', 'UserLanguage'
+-   Removed rows 2 and 3
 
-# change '1 (least)' to '1'
+-   Removed columns: Status, IPAddress, Progress, Finished, ResponseID, RecipientLastName, RecipientFirstName, RecipientEmail, ExternalReference, LocationLatitude, LocationLongitude, DistributionChannel, UserLanguage
 
-# change '7 (most)' to '7'
-```
+-   Rename "1 (least)" to "1"
 
-#### Make data tidy
+-   Rename "7 (most)" to "7"
+
+### Make data tidy
 
 This makes the data easier to use to make graphs and do calculations
 
