@@ -78,7 +78,7 @@ library(corrr)
 #### Data
 
 ```{r}
-# survey data taken from Qualtrics on December 28th 2022
+# survey data taken from Qualtrics on January 7th 2022
 test_svy <- read_csv("https://raw.githubusercontent.com/nwstetson/ChimpPersonality/main/Data/7Jan2022_Cleaning.csv", show_col_types = FALSE)
 ```
 
@@ -96,7 +96,7 @@ test_svy <- read_csv("https://raw.githubusercontent.com/nwstetson/ChimpPersonali
 
 -   Rename "7 (most)" to "7"
 
--   ⭐️ In the final version I can also change everyone's names to their initials
+-   ⭐️ In the final version I can change everyone's names to their initials
 
 ### Make data tidy
 
@@ -193,7 +193,7 @@ inter
 
 ------------------------------------------------------------------------
 
-### By Chimp 6 category
+### By "Chimp 6" category
 
 The survey has some personality traits sorted to fit into larger categories (openness, conscientiousness, extroversion, agreeableness, neuroticism, and dominance). We want to see how to smaller traits that go into the same larger category correlate with one another.
 
@@ -258,10 +258,10 @@ inter_extroversion <- extroversion %>% correlate() %>% select(-term)
 inter_extroversion <- colMeans(inter_extroversion, na.rm = TRUE)
 
 mean(inter_extroversion)
-# _
+# 0.4565254
 
 psych::alpha(extroversion) # alpha value
-# _
+# 0.77	
 ```
 
 #### Agreeableness
@@ -295,7 +295,7 @@ mean(inter_neuroticism)
 # 0.5718016
 
 psych::alpha(neuroticism) # alpha value
-# 0.7
+# 0.70
 ```
 
 #### Dominance
@@ -382,8 +382,71 @@ ggplot(tidy_svy, aes(x= Chimp6, y= Chimp6Score, fill = RaterName)) +
 
 ### Okay now for the math part:
 
-Calculating inter-rater reliability
+Calculating inter-rater reliability using Fleiss's Kappa
+
+One test for each item I think
+
+I tried to make it into a for loop situation so it would take less time but instead I spent 2 hours trying to do that and it didn't work
+
+#### Fearful
 
 ```{r}
+# set up df so it has a column for each rater
+irr_fearful <- as.data.frame(test_svy %>% select(RaterName, ChimpName, Fearful)) 
+#this is the data we need
 
+#change "RaterName" from column to row
+irr_fearful <- spread(irr_fearful, key=RaterName, value=Fearful)
+# remove chimp names bc R gets confused and thinks ChimpName is the name of a rater silly R
+irr_fearful <- as.data.frame(irr_fearful %>% select(-ChimpName)) 
+
+# Run Fleiss's Kappa
+kappam.fleiss(irr_fearful)
+```
+
+### and then repeat that for test_svy\$Fearful:SC5
+
+Trying to make loop:
+
+Write code as a function
+
+```{r}
+irr_by_trait <- function(x)
+{
+# set up df so it has a column for each rater
+irr_x <- as.data.frame(test_svy %>% select(RaterName, ChimpName, x)) 
+#this is the data we need
+
+#change "RaterName" from column to row
+irr_x <- spread(irr_x, key=RaterName, value=x)
+# remove chimp names bc R gets confused and thinks ChimpName is the name of a rater silly R
+irr_x <- as.data.frame(irr_x %>% select(-ChimpName)) 
+
+# Run Fleiss's Kappa
+return(kappam.fleiss(irr_x))
+}
+```
+
+Now have it run the function for each column (test_svy\$Fearful:SC5)
+
+```{r}
+irr_by_trait(test_svy$Fearful)
+```
+
+This obviously doesn't work but the code I used for Fearful works for any column you just switch out where it says fearful to the name of whatever column
+
+For example:
+
+```{r}
+# set up df so it has a column for each rater
+irr_SC1 <- as.data.frame(test_svy %>% select(RaterName, ChimpName, SC1)) 
+#this is the data we need
+
+#change "RaterName" from column to row
+irr_SC1 <- spread(irr_SC1, key=RaterName, value=SC1)
+# remove chimp names bc R gets confused and thinks ChimpName is the name of a rater silly R
+irr_SC1 <- as.data.frame(irr_SC1 %>% select(-ChimpName)) 
+
+# Run Fleiss's Kappa
+kappam.fleiss(irr_SC1)
 ```
